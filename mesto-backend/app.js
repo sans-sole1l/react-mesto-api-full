@@ -1,8 +1,11 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const usersRouter = require('./routers/users');
 const cardsRouter = require('./routers/cards');
+const { login, createUser } = require('./controllers/users');
+const auth = require('./middlewares/auth');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -15,15 +18,12 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useUnifiedTopology: true,
 });
 
+app.post('/signin', login);
+app.post('/signup', createUser);
+
 app.use(bodyParser.json());
-app.use((req, res, next) => {
-  req.user = {
-    _id: '5fb54b6f3279285ea4333361', // вставьте сюда _id созданного в предыдущем пункте пользователя
-  };
-  next();
-});
-app.use('/users', usersRouter);
-app.use('/cards', cardsRouter);
+app.use('/users', auth, usersRouter);
+app.use('/cards', auth, cardsRouter);
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
 });

@@ -22,12 +22,18 @@ module.exports.createCard = (req, res) => {
 module.exports.deleteCard = (req, res) => {
   const { cardId } = req.params;
 
-  Card.deleteOne({ _id: cardId })
-    .then((response) => {
-      if (response.deletedCount !== 0) {
-        return res.status(200).send({ message: 'Карточка удалена' });
+  Card.findById(cardId)
+    .then((card) => {
+      if (card.owner !== req.user._id) { // свойство user добавлено при авторизации
+        return res.status(403).send({ message: 'Недостаточно прав' });
       }
-      return res.status(404).send({ message: 'Карточка не найдена' });
+      return Card.deleteOne({ _id: cardId })
+        .then((response) => {
+          if (response.deletedCount !== 0) {
+            return res.status(200).send({ message: 'Карточка удалена' });
+          }
+          return res.status(404).send({ message: 'Карточка не найдена' });
+        });
     })
     .catch(() => res.status(404).send({ message: 'Карточка не найдена' }));
 };

@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 // получение всех пользователей
@@ -31,11 +33,50 @@ module.exports.getUser = (req, res) => {
   }
 };
 
+// login пользователя
+module.exports.login = (req, res) => {
+  const { email, password } = req.body;
+  User.findOne({ email }).select('+password') // добавляем в объект user хеш пароля
+    .then((user) => {
+      if (!user) {
+        return Promise.reject(new Error('Неправильные почта или пароль'));
+      }
+      return bcrypt.compare(password, user.password)
+        .then((matched) => {
+          if (!matched) {
+            return Promise.reject(new Error('Неправильные почта или пароль'));
+          }
+          const { NODE_ENV, JWT_SECRET } = process.env;
+          const token = jwt.sign( // создаем токен
+            { _id: user._id }, // Пейлоуд токена — зашифрованный в строку объект пользователя
+            NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', // секретный ключ подписи для шифрования
+            { expiresIn: '7d' },
+          );
+          return res.status(200).send({ token });
+          // return res.status(200).cookie('jwt', token, {
+          //   maxAge: 3600000,
+          //   httpOnly: true,
+          // });
+        });
+    })
+    .catch((err) => res.status(401).send({ message: err.message }));
+};
+
 // создание нового пользователя
 module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
-    .then((user) => res.status(200).send(user))
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+
+  // хешируем пароль
+  // 10 - длина «соли» — случайной строки, которую метод добавит к паролю перед хешированием
+  bcrypt.hash(password, 10)
+    .then((hash) => {
+      User.create({ // создаем пользователя
+        name, about, avatar, email, password: hash, // записываем хеш в базу
+      })
+        .then((user) => res.status(200).send(user));
+    })
     .catch(() => res.status(400).send({ message: 'Неверный запрос' }));
 };
 
