@@ -1,0 +1,32 @@
+{
+  "name": "mesto-backend",
+  "version": "1.0.0",
+  "description": "mesto backend",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Evgeny-Proskurnikov/react-mesto-api-full.git"
+  },
+  "keywords": [],
+  "author": "Evgeny Proskurnikov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Evgeny-Proskurnikov/react-mesto-api-full/issues"
+  },
+  "homepage": "",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.10.14"
+  },
+  "devDependencies": {
+    "eslint": "^7.12.1",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.1",
+    "nodemon": "^2.0.6"
+  }
+}
