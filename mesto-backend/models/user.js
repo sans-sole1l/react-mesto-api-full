@@ -4,22 +4,25 @@ const npmValidator = require('validator');
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
+    required: false,
     default: 'Жак-Ив Кусто',
     minlength: 2,
     maxlength: 30,
   },
   about: {
     type: String,
+    required: false,
     default: 'Исследователь',
     minlength: 2,
     maxlength: 30,
   },
   avatar: {
     type: String,
+    required: false,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     validate: {
       validator(v) {
-        return /^https?:\/\/[a-z0-9\/\.\-]+#?$/i.test(v); // eslint-disable-line
+        return /^https?:\/\/[a-z0-9\W]+#?$/i.test(v); // eslint-disable-line
       },
       message: 'Ссылка некорректна',
     },
@@ -32,7 +35,7 @@ const userSchema = new mongoose.Schema({
       validator(v) {
         return npmValidator.isEmail(v);
       },
-      message: 'Email или пароль некорректен',
+      message: 'Email некорректен',
     },
   },
   password: {
@@ -42,9 +45,9 @@ const userSchema = new mongoose.Schema({
     select: false, // по умолчанию хеш пароля пользователя не будет возвращаться из базы
     validate: {
       validator(v) {
-        return npmValidator.isAlphanumeric(v);
+        return /[a-z0-9]*/i.test(v);
       },
-      message: 'Email или пароль некорректен',
+      message: 'Пароль некорректен',
     },
   },
 });

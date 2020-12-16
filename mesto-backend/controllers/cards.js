@@ -24,7 +24,7 @@ module.exports.deleteCard = (req, res, next) => {
 
   Card.findById(cardId)
     .then((card) => {
-      if (card.owner !== req.user._id) { // свойство user добавлено при авторизации
+      if (card.owner.toString() !== req.user._id) { // свойство user добавлено при авторизации
         throw new ForbiddenError('Недостаточно прав');
       }
       return Card.deleteOne({ _id: cardId })

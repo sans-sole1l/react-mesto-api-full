@@ -2,13 +2,12 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { errors } = require('celebrate');
+const { Joi, celebrate, errors } = require('celebrate');
 const usersRouter = require('./routers/users');
 const cardsRouter = require('./routers/cards');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-const { authReqValidation } = require('./utils/request-validation');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -23,10 +22,22 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 
 app.use(requestLogger); // подключаем логгер запросов
 
-app.post('/signin', authReqValidation, login);
-app.post('/signup', authReqValidation, createUser);
-
 app.use(bodyParser.json());
+
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().alphanum().required().min(8),
+  }),
+}), login);
+
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().alphanum().required().min(8),
+  }),
+}), createUser);
+
 app.use('/users', auth, usersRouter); // если авторизация не пройдет usersRouter не выполнится
 app.use('/cards', auth, cardsRouter);
 app.use('*', (req, res) => {

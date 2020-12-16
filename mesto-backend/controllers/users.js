@@ -31,6 +31,19 @@ module.exports.getUser = (req, res, next) => {
   }
 };
 
+// получение текущего пользователя
+module.exports.getUserMe = (req, res, next) => {
+  const currentUserId = mongoose.Types.ObjectId(req.user._id);
+  User.findById(currentUserId)
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Нет пользователя с таким id');
+      }
+      return res.send(user);
+    })
+    .catch(next);
+};
+
 // login пользователя
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
@@ -62,18 +75,17 @@ module.exports.login = (req, res, next) => {
 
 // создание нового пользователя
 module.exports.createUser = (req, res, next) => {
-  const {
-    name, about, avatar, email, password,
-  } = req.body;
+  const { email, password } = req.body;
 
   // хешируем пароль
   // 10 - длина «соли» — случайной строки, которую метод добавит к паролю перед хешированием
   bcrypt.hash(password, 10)
     .then((hash) => {
       User.create({ // создаем пользователя
-        name, about, avatar, email, password: hash, // записываем хеш в базу
+        email, password: hash, // записываем хеш в базу
       })
-        .then((user) => res.status(200).send(user));
+        .then((user) => res.status(200).send(user))
+        .catch(next);
     })
     .catch(next);
 };
