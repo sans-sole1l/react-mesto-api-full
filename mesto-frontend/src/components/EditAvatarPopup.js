@@ -22,7 +22,6 @@ function EditAvatarPopup({ isOpen, onClose, onUpdateAvatar }) {
       children={
         <form action="#" name="edit-avatar" className="modal__form modal__form_type_avatar" onSubmit={handleSubmit(onSubmit)} noValidate>
           <input 
-            id="url-input" 
             name="avatar" 
             type="url" 
             className={errors.avatar ? "modal__input modal__input_type_error" : "modal__input"}
@@ -38,7 +37,6 @@ function EditAvatarPopup({ isOpen, onClose, onUpdateAvatar }) {
           />
 
           <span 
-            id="url-input-error" 
             className={errors.avatar ? "modal__input-error modal__input-error_active" : "modal__input-error"}
           >
             {isOpen ? (errors.avatar && errors.avatar.message) : errors.avatar = false}

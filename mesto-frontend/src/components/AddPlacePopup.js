@@ -36,8 +36,8 @@ function AddPlacePopup ({ isOpen, onClose, onAddPlace }) {
       children={
       <form action="#" name="add-card" className="modal__form modal__form_type_addcard" onSubmit={handleSubmit(onSubmit)} noValidate>
         <input 
-          id="place-input" 
-          name="name" type="text" 
+          name="name" 
+          type="text" 
           className={errors.name ? "modal__input modal__input_type_error" : "modal__input"}
           defaultValue={name} 
           onChange={handleNameChange} 
@@ -51,14 +51,12 @@ function AddPlacePopup ({ isOpen, onClose, onAddPlace }) {
         />
 
         <span 
-          id="place-input-error" 
           className={errors.name ? "modal__input-error modal__input-error_active" : "modal__input-error"}
         >
           {isOpen ? (errors.name && errors.name.message) : errors.name = false}
         </span>
 
         <input 
-          id="url-input" 
           name="link" 
           type="url" 
           className={errors.link ? "modal__input modal__input_type_error" : "modal__input"}
@@ -75,7 +73,6 @@ function AddPlacePopup ({ isOpen, onClose, onAddPlace }) {
         />
 
         <span 
-          id="url-input-error" 
           className={errors.link ? "modal__input-error modal__input-error_active" : "modal__input-error"}
         >
           {isOpen ? (errors.link && errors.link.message) : errors.link = false}

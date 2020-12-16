@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { Joi, celebrate, errors } = require('celebrate');
+const cors = require('cors');
 const usersRouter = require('./routers/users');
 const cardsRouter = require('./routers/cards');
 const { login, createUser } = require('./controllers/users');
@@ -19,6 +20,8 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useFindAndModify: false,
   useUnifiedTopology: true,
 });
+
+app.use(cors({ origin: true }));
 
 app.use(requestLogger); // подключаем логгер запросов
 
