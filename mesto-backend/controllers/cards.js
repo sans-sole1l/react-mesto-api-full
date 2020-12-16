@@ -1,45 +1,45 @@
 const Card = require('../models/card');
+const NotFoundError = require('../errors/not-found-err');
+const ForbiddenError = require('../errors/forbidden-err');
 
 // получение всех карточек
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((data) => res.send(data))
-    .catch(() => {
-      res.status(500).send({ message: 'Внутренняя ошибка сервера' });
-    });
+    .catch(next); // эквивалентна .catch(err => next(err));
 };
 
 // создание карточки
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
 
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.status(200).send(card))
-    .catch(() => res.status(400).send({ message: 'Неверный запрос' }));
+    .catch(next);
 };
 
 // удаление карточки
-module.exports.deleteCard = (req, res) => {
+module.exports.deleteCard = (req, res, next) => {
   const { cardId } = req.params;
 
   Card.findById(cardId)
     .then((card) => {
       if (card.owner !== req.user._id) { // свойство user добавлено при авторизации
-        return res.status(403).send({ message: 'Недостаточно прав' });
+        throw new ForbiddenError('Недостаточно прав');
       }
       return Card.deleteOne({ _id: cardId })
         .then((response) => {
           if (response.deletedCount !== 0) {
             return res.status(200).send({ message: 'Карточка удалена' });
           }
-          return res.status(404).send({ message: 'Карточка не найдена' });
+          throw new NotFoundError('Карточка не найдена');
         });
     })
-    .catch(() => res.status(404).send({ message: 'Карточка не найдена' }));
+    .catch(next);
 };
 
 // добавление лайка карточке
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
@@ -49,13 +49,13 @@ module.exports.likeCard = (req, res) => {
       if (card) {
         return res.status(200).send(card);
       }
-      return res.status(404).send({ message: 'Карточка не найдена' });
+      throw new NotFoundError('Карточка не найдена');
     })
-    .catch(() => res.status(400).send({ message: 'Неверный запрос' }));
+    .catch(next);
 };
 
 // удаление лайка карточки
-module.exports.dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
@@ -65,7 +65,7 @@ module.exports.dislikeCard = (req, res) => {
       if (card) {
         return res.status(200).send(card);
       }
-      return res.status(404).send({ message: 'Карточка не найдена' });
+      throw new NotFoundError('Карточка не найдена');
     })
-    .catch(() => res.status(400).send({ message: 'Неверный запрос' }));
+    .catch(next);
 };

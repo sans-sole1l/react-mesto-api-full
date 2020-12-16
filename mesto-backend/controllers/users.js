@@ -2,18 +2,18 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const NotFoundError = require('../errors/not-found-err');
+const UnauthorizedError = require('../errors/unauthorized-err');
 
 // получение всех пользователей
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((data) => res.send(data))
-    .catch(() => {
-      res.status(500).send({ message: 'Внутренняя ошибка сервера' });
-    });
+    .catch(next); // эквивалентна .catch(err => next(err));
 };
 
 // получение пользователя по ID
-module.exports.getUser = (req, res) => {
+module.exports.getUser = (req, res, next) => {
   const { id } = req.params;
 
   if (mongoose.Types.ObjectId.isValid(id)) { // проверяем валидность входящего строкового id
@@ -21,30 +21,28 @@ module.exports.getUser = (req, res) => {
     User.findById(userId)
       .then((user) => {
         if (!user) {
-          return res.status(404).send({ message: 'Нет пользователя с таким id' });
+          throw new NotFoundError('Нет пользователя с таким id');
         }
         return res.send(user);
       })
-      .catch(() => {
-        res.status(500).send({ message: 'Внутренняя ошибка сервера' });
-      });
+      .catch(next);
   } else {
     res.status(404).send({ message: 'Нет пользователя с таким id' });
   }
 };
 
 // login пользователя
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email }).select('+password') // добавляем в объект user хеш пароля
     .then((user) => {
       if (!user) {
-        return Promise.reject(new Error('Неправильные почта или пароль'));
+        throw new UnauthorizedError('Неправильные почта или пароль');
       }
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            return Promise.reject(new Error('Неправильные почта или пароль'));
+            throw new UnauthorizedError('Неправильные почта или пароль');
           }
           const { NODE_ENV, JWT_SECRET } = process.env;
           const token = jwt.sign( // создаем токен
@@ -59,11 +57,11 @@ module.exports.login = (req, res) => {
           // });
         });
     })
-    .catch((err) => res.status(401).send({ message: err.message }));
+    .catch(next);
 };
 
 // создание нового пользователя
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
@@ -77,11 +75,11 @@ module.exports.createUser = (req, res) => {
       })
         .then((user) => res.status(200).send(user));
     })
-    .catch(() => res.status(400).send({ message: 'Неверный запрос' }));
+    .catch(next);
 };
 
 // обновление пользовательских данных
-module.exports.updateUser = (req, res) => {
+module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;
   const userId = req.user._id;
 
@@ -91,11 +89,11 @@ module.exports.updateUser = (req, res) => {
     { runValidators: true }, // метод update не валидирует данные при обновлении по умолчанию
   )
     .then(() => res.status(200).send({ name, about }))
-    .catch(() => res.status(400).send({ message: 'Неверный запрос' }));
+    .catch(next);
 };
 
 // обновление аватара пользователя
-module.exports.updateUserAvatar = (req, res) => {
+module.exports.updateUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
   const userId = req.user._id;
 
@@ -105,5 +103,5 @@ module.exports.updateUserAvatar = (req, res) => {
     { runValidators: true }, // метод update не валидирует данные при обновлении по умолчанию
   )
     .then(() => res.status(200).send({ avatar }))
-    .catch(() => res.status(400).send({ message: 'Неверный запрос' }));
+    .catch(next);
 };

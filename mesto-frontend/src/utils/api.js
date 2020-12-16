@@ -128,8 +128,8 @@ export class Api {
 }
 
 const apiRequest = new Api({
-  url: 'https://mesto.nomoreparties.co/v1/cohort-15',
-  token: '06e1dc17-91d9-4de2-856b-fec4fd742305'
+  url: 'https://api.mesto.evpro.students.nomoreparties.xyz',
+  token: localStorage.getItem('token')
 })
 
 export default apiRequest;
