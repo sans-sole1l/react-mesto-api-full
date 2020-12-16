@@ -57,7 +57,8 @@ module.exports.login = (req, res, next) => {
           if (!matched) {
             throw new UnauthorizedError('Неправильные почта или пароль');
           }
-          const { NODE_ENV, JWT_SECRET } = process.env;
+          const { JWT_SECRET } = process.env;
+          const NODE_ENV = 'dev';
           const token = jwt.sign( // создаем токен
             { _id: user._id }, // Пейлоуд токена — зашифрованный в строку объект пользователя
             NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', // секретный ключ подписи для шифрования

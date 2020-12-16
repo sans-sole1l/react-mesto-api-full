@@ -55,7 +55,6 @@ function App() {
     })
     .catch(err => {
       console.log(err);
-      handleErrorMessage(err);
     })
   }, []); // eslint-disable-line
 
