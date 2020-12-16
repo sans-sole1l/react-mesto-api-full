@@ -44,7 +44,7 @@ router.patch('/me/avatar', celebrate({
     authorization: Joi.string().required(),
   }).unknown(),
   body: Joi.object().keys({
-    avatar: Joi.string().required().pattern(/^https?:\/\/[a-z0-9\W]+#?$/i, 'url'), // eslint-disable-line
+    avatar: Joi.string().required().pattern(/^https?:\/\/[a-z0-9\W\_]+#?$/i, 'url'), // eslint-disable-line
   }),
 }), updateUserAvatar);
 
