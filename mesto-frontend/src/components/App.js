@@ -56,7 +56,7 @@ function App() {
     .catch(err => {
       console.log(err);
     })
-  }, []); // eslint-disable-line
+  }, [loggedIn]); // eslint-disable-line
 
   // проверка валидности токена для автоматической авторизации
   React.useEffect(() => {
@@ -176,7 +176,7 @@ function App() {
 
   // лайк/дизлайк карточки
   function handleCardLike(card) {
-    const isLiked = card.likes.some(i => i._id === currentUser._id);
+    const isLiked = card.likes.some(i => i === currentUser._id);
       // Отправляем запрос в API и получаем обновлённые данные карточки
     apiRequest.changeLikeCardStatus(card._id, isLiked)
     .then((newCard) => {
@@ -257,8 +257,8 @@ function App() {
       setSpinnerState(true);
       auth.getUserData(jwt)
       .then(res => {
-        if (res.data.email) {
-          setAuthUserData(res.data);
+        if (res.email) {
+          setAuthUserData(res);
           setSpinnerState(false);
           setLoggedIn(true);
           history.push('/');

@@ -1,14 +1,13 @@
 export class Api {
   constructor(config) {
     this._url = config.url;
-    this._token = config.token;
   }
 
   getInitialCards() {
     return fetch(`${this._url}/cards`, {
       method: 'GET',
       headers: {
-        authorization: this._token,
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
         'Content-type': 'application/json'
       }
     })
@@ -25,7 +24,7 @@ export class Api {
     return fetch(`${this._url}/users/me`, {
       method: 'GET',
       headers: {
-        authorization: this._token,
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
         'Content-type': 'application/json'
       }
     })
@@ -42,7 +41,7 @@ export class Api {
     return fetch(`${this._url}/cards`, {
       method: 'POST',
       headers: {
-        authorization: this._token,
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
         'Content-type': 'application/json'
       },
       body: JSON.stringify(data)
@@ -60,7 +59,7 @@ export class Api {
     return fetch(`${this._url}/cards/${cardId}`, {
       method: 'DELETE',
       headers: {
-        authorization: this._token,
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
         'Content-type': 'application/json'
       }
     })
@@ -77,7 +76,7 @@ export class Api {
     return fetch(`${this._url}/users/me`, {
       method: 'PATCH',
       headers: {
-        authorization: this._token,
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
         'Content-type': 'application/json'
       },
       body: JSON.stringify(formData)
@@ -95,7 +94,7 @@ export class Api {
     return fetch(`${this._url}/users/me/avatar`, {
       method: 'PATCH',
       headers: {
-        authorization: this._token,
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
         'Content-type': 'application/json'
       },
       body: JSON.stringify(formData)
@@ -110,10 +109,10 @@ export class Api {
   }
 
   changeLikeCardStatus(cardId, isLiked) {
-    return fetch(`${this._url}/cards/likes/${cardId}`, {
+    return fetch(`${this._url}/cards/${cardId}/likes`, {
       method: isLiked ? 'DELETE' : 'PUT',
       headers: {
-        authorization: this._token,
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
         'Content-type': 'application/json'
       }
     })
@@ -129,7 +128,6 @@ export class Api {
 
 const apiRequest = new Api({
   url: 'https://api.mesto.evpro.students.nomoreparties.xyz',
-  token: localStorage.getItem('token')
 })
 
 export default apiRequest;
