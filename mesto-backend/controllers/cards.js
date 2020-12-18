@@ -23,17 +23,18 @@ module.exports.deleteCard = (req, res, next) => {
   const { cardId } = req.params;
 
   Card.findById(cardId)
+    .orFail(new NotFoundError('Карточка не найдена'))
     .then((card) => {
       if (card.owner.toString() !== req.user._id) { // свойство user добавлено при авторизации
         throw new ForbiddenError('Недостаточно прав');
       }
       return Card.deleteOne({ _id: cardId })
-        .then((response) => {
+        .then((response) => { // eslint-disable-line
           if (response.deletedCount !== 0) {
             return res.status(200).send({ message: 'Карточка удалена' });
           }
-          throw new NotFoundError('Карточка не найдена');
-        });
+        })
+        .catch(next);
     })
     .catch(next);
 };

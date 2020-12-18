@@ -145,8 +145,8 @@ function App() {
   // сохранение нового аватара пользователя
   function handleUpdateAvatar(avatarStateObj) {
     apiRequest.saveAvatar(avatarStateObj)
-    .then((avatar) => {
-      setCurrentUser(avatar);
+    .then((user) => {
+      setCurrentUser(user);
     })
     .catch(err => {
       console.log(err);

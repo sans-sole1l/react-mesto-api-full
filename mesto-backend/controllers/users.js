@@ -17,8 +17,7 @@ module.exports.getUser = (req, res, next) => {
   const { id } = req.params;
 
   if (mongoose.Types.ObjectId.isValid(id)) { // проверяем валидность входящего строкового id
-    const userId = mongoose.Types.ObjectId(id); // если валиден, то конвертируем тип id в ObjectId
-    User.findById(userId)
+    User.findById(id)
       .then((user) => {
         if (!user) {
           throw new NotFoundError('Нет пользователя с таким id');
@@ -27,7 +26,7 @@ module.exports.getUser = (req, res, next) => {
       })
       .catch(next);
   } else {
-    res.status(404).send({ message: 'Нет пользователя с таким id' });
+    next(new NotFoundError('Нет пользователя с таким id'));
   }
 };
 
@@ -76,15 +75,19 @@ module.exports.login = (req, res, next) => {
 
 // создание нового пользователя
 module.exports.createUser = (req, res, next) => {
-  const { email, password } = req.body;
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
 
   // хешируем пароль
   // 10 - длина «соли» — случайной строки, которую метод добавит к паролю перед хешированием
   bcrypt.hash(password, 10)
     .then((hash) => {
-      User.create({ // создаем пользователя
-        email, password: hash, // записываем хеш в базу
-      })
+      User.create( // создаем пользователя
+        {
+          name, about, avatar, email, password: hash, // записываем хеш в базу
+        },
+      )
         .then((user) => res.status(200).send(user))
         .catch(next);
     })
@@ -110,11 +113,11 @@ module.exports.updateUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
   const userId = req.user._id;
 
-  User.updateOne(
+  User.findOneAndUpdate(
     { _id: userId },
     { avatar },
-    { runValidators: true }, // метод update не валидирует данные при обновлении по умолчанию
+    { new: true }, // метод update не валидирует данные при обновлении по умолчанию
   )
-    .then(() => res.status(200).send({ avatar }))
+    .then((user) => res.status(200).send(user))
     .catch(next);
 };
