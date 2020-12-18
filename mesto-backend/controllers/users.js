@@ -96,12 +96,12 @@ module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;
   const userId = req.user._id;
 
-  User.updateOne(
+  User.findOneAndUpdate(
     { _id: userId },
     { name, about },
-    { runValidators: true }, // метод update не валидирует данные при обновлении по умолчанию
+    { new: true },
   )
-    .then(() => res.status(200).send({ name, about }))
+    .then((user) => res.status(200).send(user))
     .catch(next);
 };
 
