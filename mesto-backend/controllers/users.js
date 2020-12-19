@@ -83,11 +83,9 @@ module.exports.createUser = (req, res, next) => {
   // 10 - длина «соли» — случайной строки, которую метод добавит к паролю перед хешированием
   bcrypt.hash(password, 10)
     .then((hash) => {
-      User.create( // создаем пользователя
-        {
-          name, about, avatar, email, password: hash, // записываем хеш в базу
-        },
-      )
+      User.create({ // создаем пользователя
+        name, about, avatar, email, password: hash, // записываем хеш в базу
+      })
         .then((user) => res.status(200).send(user))
         .catch(next);
     })
