@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
 const UnauthorizedError = require('../errors/unauthorized-err');
+const BadRequestError = require('../errors/bad-request-err');
 
 // получение всех пользователей
 module.exports.getUsers = (req, res, next) => {
@@ -86,7 +87,12 @@ module.exports.createUser = (req, res, next) => {
       User.create({ // создаем пользователя
         name, about, avatar, email, password: hash, // записываем хеш в базу
       })
-        .then((user) => res.status(200).send(user))
+        .then((user) => {
+          if (!user) {
+            throw new BadRequestError('Пользователь уже создан');
+          }
+          res.status(200).send(user);
+        })
         .catch(next);
     })
     .catch(next);
