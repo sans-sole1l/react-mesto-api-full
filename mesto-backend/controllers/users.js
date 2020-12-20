@@ -80,18 +80,22 @@ module.exports.createUser = (req, res, next) => {
     name, about, avatar, email, password,
   } = req.body;
 
-  // хешируем пароль
-  // 10 - длина «соли» — случайной строки, которую метод добавит к паролю перед хешированием
-  bcrypt.hash(password, 10)
-    .then((hash) => {
-      User.create({ // создаем пользователя
-        name, about, avatar, email, password: hash, // записываем хеш в базу
-      })
-        .then((user) => {
-          if (!user) {
-            throw new BadRequestError('Пользователь уже создан');
-          }
-          res.status(200).send(user);
+  User.findOne({ email })
+    .then((data) => {
+      if (data && data.email === email) {
+        throw new BadRequestError('Пользователь уже создан');
+      }
+      // хешируем пароль
+      // 10 - длина «соли» — случайной строки, которую метод добавит к паролю перед хешированием
+      bcrypt.hash(password, 10)
+        .then((hash) => {
+          User.create({ // создаем пользователя
+            name, about, avatar, email, password: hash, // записываем хеш в базу
+          })
+            .then((user) => {
+              res.status(200).send(user);
+            })
+            .catch(next);
         })
         .catch(next);
     })
