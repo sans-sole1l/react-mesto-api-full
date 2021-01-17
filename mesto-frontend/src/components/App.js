@@ -265,7 +265,10 @@ function App() {
         }
         setSpinnerState(false);
       })
-      .catch(err => console.log(err))
+      .catch(err => {
+        console.log(err);
+        setSpinnerState(false);
+      })
     }
   }
 
